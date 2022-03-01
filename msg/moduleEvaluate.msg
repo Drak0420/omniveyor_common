@@ -1,0 +1,2 @@
+float32  performanceScore
+float32  resourceScore
