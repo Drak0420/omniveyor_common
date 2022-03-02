@@ -1,5 +1,7 @@
 <?xml version="1.0" ?>
 <robot name="omniveyor" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="gpu_ray_tracing" default="true"/>
+
   <xacro:property name="steerAxisX" value="0.2074" />
   <xacro:property name="steerAxisY" value="0.2074" />
   <xacro:property name="pumpkinLength" value="0.2" />
@@ -123,8 +125,7 @@
     <material>Gazebo/DarkGrey</material>
   </gazebo>
 
-  <gazebo reference="laser">
-      <sensor name="laser" type="gpu_ray">
+  <xacro:property name="lidar_params">
         <pose>0 0 0 0 -0 0</pose>
         <ray>
           <scan>
@@ -146,14 +147,30 @@
           <mean>0.0</mean>
           <stddev>0.005</stddev>
         </noise>
+        <always_on>1</always_on>
+        <update_rate>40</update_rate>
+        <visualize>true</visualize>
+  </xacro:property>
+
+  <gazebo reference="laser">
+  <xacro:if value="$(arg gpu_ray_tracing)">
+      <sensor name="laser" type="gpu_ray">
+        <xacro:insert_block name="lidar_params"/>
         <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_gpu_laser.so">
           <topicName>scan</topicName>
           <frameName>laser</frameName>
         </plugin>
-        <always_on>1</always_on>
-        <update_rate>40</update_rate>
-        <visualize>true</visualize>
       </sensor>
+  </xacro:if>
+  <xacro:unless value="$(arg gpu_ray_tracing)">
+      <sensor name="laser" type="ray">
+        <xacro:insert_block name="lidar_params"/>
+        <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+          <topicName>scan</topicName>
+          <frameName>laser</frameName>
+        </plugin>
+      </sensor>
+  </xacro:unless>
   </gazebo>
 
   <gazebo reference="cam_d1_link">
@@ -182,8 +199,8 @@
         <camera>
           <horizontal_fov>1.204</horizontal_fov>
           <image>
-            <width>1280</width>
-            <height>720</height>
+            <width>848</width>
+            <height>480</height>
             <format>R8G8B8</format>
           </image>
           <noise>
@@ -247,8 +264,8 @@
         <camera>
           <horizontal_fov>1.204</horizontal_fov>
           <image>
-            <width>1280</width>
-            <height>720</height>
+            <width>848</width>
+            <height>480</height>
             <format>R8G8B8</format>
           </image>
           <noise>
