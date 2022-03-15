@@ -2,6 +2,7 @@
 <robot name="omniveyor" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:arg name="gazebo" default="false"/>
   <xacro:arg name="gpu_ray_tracing" default="true"/>
+  <xacro:arg name="simulate_accurate_realsense_cameras" default="true"/>
 
   <xacro:include filename="omniveyor.materials.xacro"/>
   <xacro:if value="$(arg gazebo)">
@@ -10,6 +11,73 @@
     <xacro:include filename="omniveyor.gazebo.xacro"/>
   </xacro:if>
 
+  <!--geometric center of omniveyor (on-ground)-->
+  <link name="base_link">
+  <xacro:if value="$(arg gazebo)">
+    <inertial>
+      <origin xyz="0 0 0.192" rpy="0 0 0"/>
+      <mass value="29.82"/>
+      <inertia ixx="1.209698" ixy="0" ixz="0"
+          iyy="1.209698" iyz="0" izz="1.910468"/>
+    </inertial>
+    <collision>
+      <origin xyz="-0.3752 0.3381 0.032" rpy="${pi/2} 0 0"/>
+      <geometry>
+        <mesh filename="package://omniveyor_common/meshes/OV_Shell.STL"
+              scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="-0.3752 0.3381 0.032" rpy="${pi/2} 0 0"/>
+      <geometry>
+        <mesh filename="package://omniveyor_common/meshes/OV_Shell.STL"
+              scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+  </xacro:if>
+  </link>
+
+  <!--Hokuyo 20LX-->
+  <link name="laser">
+  <xacro:if value="$(arg gazebo)">
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.01" ixy="0" ixz="0"
+               iyy="0.01" iyz="0" izz="0.01"/>
+    </inertial>
+    <visual name="visual">
+      <origin xyz="0 0 -0.0175" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://omniveyor_common/meshes/hokuyo.dae"/>
+      </geometry>
+    </visual>
+    <collision name="collision-base">
+      <origin xyz="0 0 -0.032" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.05 0.041"/>
+      </geometry>
+    </collision>
+    <collision name="collision-top">
+      <origin xyz="0 0 0.003" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.021" length="0.029"/>
+      </geometry>
+    </collision>
+  </xacro:if>
+  </link>
+
+  <joint name="laser_joint" type="fixed">
+  <!--laser connector from bottom (on-ground) center of omniveyor-->
+    <parent link="base_link" />
+    <child link="laser" />
+    <origin xyz="0.27 0 0.10" rpy="0 0 0" />
+  </joint>
+
+  <xacro:property name="accurateRealsense" value="$(find omniveyor_gazebo_world)" />
+  <xacro:property name="accurateRrealsensePlugin" value="$(find realsense_ros_gazebo)" />
+  <xacro:property name="gazebo_property" value="$(arg gazebo)"/>
+  <xacro:unless value="${accurateRealsense != '' and accurateRrealsensePlugin != '' and gazebo_property}">
   <!--tracking camera-->
   <link name="cam_t1_pose_frame">
   <xacro:if value="$(arg gazebo)">
@@ -73,69 +141,6 @@
   </xacro:if>
   </link>
 
-  <!--Hokuyo 20LX-->
-  <link name="laser">
-  <xacro:if value="$(arg gazebo)">
-    <inertial>
-      <mass value="0.1"/>
-      <inertia ixx="0.01" ixy="0" ixz="0"
-               iyy="0.01" iyz="0" izz="0.01"/>
-    </inertial>
-    <visual name="visual">
-      <origin xyz="0 0 -0.0175" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://omniveyor_common/meshes/hokuyo.dae"/>
-      </geometry>
-    </visual>
-    <collision name="collision-base">
-      <origin xyz="0 0 -0.032" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.05 0.05 0.041"/>
-      </geometry>
-    </collision>
-    <collision name="collision-top">
-      <origin xyz="0 0 0.003" rpy="0 0 0"/>
-      <geometry>
-        <cylinder radius="0.021" length="0.029"/>
-      </geometry>
-    </collision>
-  </xacro:if>
-  </link>
-
-  <!--geometric center of omniveyor (on-ground)-->
-  <link name="base_link">
-  <xacro:if value="$(arg gazebo)">
-    <inertial>
-      <origin xyz="0 0 0.192" rpy="0 0 0"/>
-      <mass value="29.82"/>
-      <inertia ixx="1.209698" ixy="0" ixz="0"
-          iyy="1.209698" iyz="0" izz="1.910468"/>
-    </inertial>
-    <collision>
-      <origin xyz="-0.3752 0.3381 0.032" rpy="${pi/2} 0 0"/>
-      <geometry>
-        <mesh filename="package://omniveyor_common/meshes/OV_Shell.STL"
-              scale="0.001 0.001 0.001"/>
-      </geometry>
-    </collision>
-    <visual>
-      <origin xyz="-0.3752 0.3381 0.032" rpy="${pi/2} 0 0"/>
-      <geometry>
-        <mesh filename="package://omniveyor_common/meshes/OV_Shell.STL"
-              scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="grey"/>
-    </visual>
-  </xacro:if>
-  </link>
-
-  <joint name="laser_joint" type="fixed">
-  <!--laser connector from bottom (on-ground) center of omniveyor-->
-    <parent link="base_link" />
-    <child link="laser" />
-    <origin xyz="0.27 0 0.10" rpy="0 0 0" />
-  </joint>
-
   <joint name="front_t265_joint" type="fixed">
   <!--front tracking camera connector from bottom (on-ground) center of omniveyor-->
     <parent link="base_link" />
@@ -156,5 +161,8 @@
     <child link="cam_d2_link" />
     <origin xyz="-0.285 -0.08 0.37" rpy="0 0.04 ${pi}" />
   </joint>
-
+  </xacro:unless>
+  <xacro:if value="${accurateRealsense != '' and accurateRrealsensePlugin != '' and gazebo_property}">
+    <xacro:include filename="$(find omniveyor_gazebo_world)/launch/realsense_accurate_setup.gazebo.xacro"/>
+  </xacro:if>
 </robot>
