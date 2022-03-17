@@ -189,7 +189,7 @@
     </joint>
     <link name="${sensor_name}_imu_optical_frame"/>
 
-    <gazebo reference="${sensor_name}_imu_frame">
+    <gazebo reference="${sensor_name}_imu_optical_frame">
         <gravity>true</gravity>
         <sensor name="${sensor_name}_imu" type="imu">
             <always_on>true</always_on>
@@ -197,7 +197,7 @@
             <visualize>false</visualize>
             <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
                 <topicName>${sensor_name}/imu</topicName>
-                <bodyName>${sensor_name}_imu_frame</bodyName>
+                <bodyName>${sensor_name}_imu_optical_frame</bodyName>
                 <updateRateHZ>${imu_rate}</updateRateHZ>
                 <gaussianNoise>0.001</gaussianNoise>
                 <xyzOffset>0 0 0</xyzOffset>

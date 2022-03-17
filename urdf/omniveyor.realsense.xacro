@@ -19,7 +19,7 @@
         </visual>
     </xacro:property>
 
-    <xacro:macro name="simple_imu_sensor" params="name frameName">
+    <xacro:macro name="simple_imu_sensor" params="name">
         <sensor name="imu_sensor" type="imu">
             <gravity>true</gravity>
             <always_on>true</always_on>
@@ -27,12 +27,12 @@
             <visualize>true</visualize>
             <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
                 <topicName>${name}/imu</topicName>
-                <bodyName>${frameName}</bodyName>
+                <bodyName>${name}_link</bodyName>
                 <updateRateHZ>0.0</updateRateHZ>
                 <gaussianNoise>0.002</gaussianNoise>
                 <xyzOffset>0 0 0</xyzOffset>
                 <rpyOffset>0 0 0</rpyOffset>
-                <frameName>${frameName}</frameName>
+                <frameName>${name}_link</frameName>
                 <initialOrientationAsReference>true</initialOrientationAsReference>
             </plugin>
             <pose>0 0 0 0 0 0</pose>
@@ -69,8 +69,8 @@
                 <cameraInfoTopicName>color/camera_info</cameraInfoTopicName>
                 <depthImageTopicName>depth/image_rect_raw</depthImageTopicName>
                 <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
-                <pointCloudTopicName>depth/color/points</pointCloudTopicName>
-                <frameName>${name}_depth_link</frameName>
+                <pointCloudTopicName>depth/points</pointCloudTopicName>
+                <frameName>${name}_optical_frame</frameName>
                 <pointCloudCutoff>0.3</pointCloudCutoff>
                 <pointCloudCutoffMax>8.0</pointCloudCutoffMax>
             </plugin>
@@ -98,16 +98,16 @@
         <xacro:unless value="${useFullModel and isGazebo}">
             <!--Use the simple definition-->
             <xacro:unless value="${useFullModel}">
-            <link name="cam_d1_depth_link"/>
-            <link name="cam_d2_depth_link"/>
+            <link name="cam_d1_optical_frame"/>
+            <link name="cam_d2_optical_frame"/>
             <joint name="cam_d1_depth_conversion" type="fixed">
                 <parent link="cam_d1_link" />
-                <child link="cam_d1_depth_link" />
+                <child link="cam_d1_optical_frame" />
                 <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
             </joint>
             <joint name="cam_d2_depth_conversion" type="fixed">
                 <parent link="cam_d2_link" />
-                <child link="cam_d2_depth_link" />
+                <child link="cam_d2_optical_frame" />
                 <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
             </joint>
             </xacro:unless>
@@ -129,14 +129,14 @@
             <xacro:if value="${isGazebo}">
                 <xacro:if value="${hasFrontD435i}">
                     <gazebo reference="cam_d1_link">
-                        <xacro:simple_imu_sensor name="cam_d1" frameName="cam_d1_link"/>
+                        <xacro:simple_imu_sensor name="cam_d1"/>
                         <xacro:simple_rgbd_camera name="cam_d1"/>
                     </gazebo>
                 </xacro:if>
 
                 <xacro:if value="${hasRearD435i}">
                     <gazebo reference="cam_d2_link">
-                        <xacro:simple_imu_sensor name="cam_d2" frameName="cam_d2_link"/>
+                        <xacro:simple_imu_sensor name="cam_d2"/>
                         <xacro:simple_rgbd_camera name="cam_d2"/>
                     </gazebo>
                 </xacro:if>
