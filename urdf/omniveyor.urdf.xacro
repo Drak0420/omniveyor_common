@@ -1,42 +1,57 @@
 <?xml version="1.0" ?>
 <robot name="omniveyor" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:arg name="gazebo" default="false"/>
+  <!--The following arguments only takes effect in simulation.-->
   <xacro:arg name="gpu_ray_tracing" default="true"/>
-  <xacro:arg name="simulate_accurate_realsense_cameras" default="true"/>
+  <xacro:arg name="has_lidar" default="true"/>
+  <xacro:arg name="has_front_d435i" default="true"/>
+  <xacro:arg name="has_rear_d435i" default="true"/>
+  <xacro:arg name="has_t265" default="true"/>
+  <xacro:arg name="simulate_full_sensor_model" default="false"/>
 
-  <xacro:include filename="omniveyor.materials.xacro"/>
+  <xacro:property name="gazebo_property" value="$(arg gazebo)"/>
+
   <xacro:if value="$(arg gazebo)">
+    <xacro:include filename="omniveyor.materials.xacro"/>
     <!-- Gazebo Tags -->
     <!--xacro:include filename="$(find omniveyor_gazebo_world)/models/Omniveyor/omniveyor.gazebo.xacro"/-->
     <xacro:include filename="omniveyor.gazebo.xacro"/>
+    <link name="chassis">
+      <inertial>
+        <origin xyz="0 0 0.192" rpy="0 0 0"/>
+        <mass value="29.82"/>
+        <inertia ixx="1.209698" ixy="0" ixz="0"
+            iyy="1.209698" iyz="0" izz="1.910468"/>
+      </inertial>
+      <collision>
+        <origin xyz="-0.3752 0.3381 0.032" rpy="${pi/2} 0 0"/>
+        <geometry>
+          <mesh filename="package://omniveyor_common/meshes/OV_Shell.STL"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <visual>
+        <origin xyz="-0.3752 0.3381 0.032" rpy="${pi/2} 0 0"/>
+        <geometry>
+          <mesh filename="package://omniveyor_common/meshes/OV_Shell.STL"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="grey"/>
+      </visual>
+    </link>
+    <joint name="base_link_dummy" type="fixed">
+      <parent link="base_link" />
+      <child link="chassis" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
   </xacro:if>
 
+  <xacro:include filename="omniveyor.realsense.xacro"/>
+  <xacro:add_realsense_cameras isGazebo="$(arg gazebo)" hasFrontD435i="$(arg has_front_d435i)"
+      hasRearD435i="$(arg has_rear_d435i)" hasT265="$(arg has_t265)" useFullModel="$(arg simulate_full_sensor_model)"/>
+
   <!--geometric center of omniveyor (on-ground)-->
-  <link name="base_link">
-  <xacro:if value="$(arg gazebo)">
-    <inertial>
-      <origin xyz="0 0 0.192" rpy="0 0 0"/>
-      <mass value="29.82"/>
-      <inertia ixx="1.209698" ixy="0" ixz="0"
-          iyy="1.209698" iyz="0" izz="1.910468"/>
-    </inertial>
-    <collision>
-      <origin xyz="-0.3752 0.3381 0.032" rpy="${pi/2} 0 0"/>
-      <geometry>
-        <mesh filename="package://omniveyor_common/meshes/OV_Shell.STL"
-              scale="0.001 0.001 0.001"/>
-      </geometry>
-    </collision>
-    <visual>
-      <origin xyz="-0.3752 0.3381 0.032" rpy="${pi/2} 0 0"/>
-      <geometry>
-        <mesh filename="package://omniveyor_common/meshes/OV_Shell.STL"
-              scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="grey"/>
-    </visual>
-  </xacro:if>
-  </link>
+  <link name="base_link"/>
 
   <!--Hokuyo 20LX-->
   <link name="laser">
@@ -73,96 +88,8 @@
     <child link="laser" />
     <origin xyz="0.27 0 0.10" rpy="0 0 0" />
   </joint>
-
-  <xacro:property name="accurateRealsense" value="$(find omniveyor_gazebo_world)" />
-  <xacro:property name="accurateRrealsensePlugin" value="$(find realsense_ros_gazebo)" />
-  <xacro:property name="gazebo_property" value="$(arg gazebo)"/>
-  <xacro:unless value="${accurateRealsense != '' and accurateRrealsensePlugin != '' and gazebo_property}">
-  <!--tracking camera-->
-  <link name="cam_t1_pose_frame">
-  <xacro:if value="$(arg gazebo)">
-    <inertial>
-      <mass value="0.2"/>
-      <inertia ixx="0.014395" ixy="0" ixz="0"
-               iyy="0.00384" iyz="0" izz="0.014136"/>
-    </inertial>
-    <collision>
-      <geometry>
-        <box size="0.008 0.13 0.02"/>
-      </geometry>
-    </collision>
-    <visual>
-      <geometry>
-        <mesh filename="package://omniveyor_common/meshes/realsense_r200.dae"/>
-      </geometry>
-    </visual>
-  </xacro:if>
-  </link>
   
-  <!--front depth camera-->
-  <link name="cam_d1_link">
-  <xacro:if value="$(arg gazebo)">
-    <inertial>
-      <mass value="0.2"/>
-      <inertia ixx="0.014395" ixy="0" ixz="0"
-               iyy="0.00384" iyz="0" izz="0.014136"/>
-    </inertial>
-    <collision>
-      <geometry>
-        <box size="0.02 0.13 0.02"/>
-      </geometry>
-    </collision>
-    <visual>
-      <geometry>
-        <mesh filename="package://omniveyor_common/meshes/realsense_r200.dae"/>
-      </geometry>
-    </visual>
-  </xacro:if>
-  </link>
-  
-  <!--rear depth camera-->
-  <link name="cam_d2_link">
-  <xacro:if value="$(arg gazebo)">
-    <inertial>
-      <mass value="0.2"/>
-      <inertia ixx="0.014395" ixy="0" ixz="0"
-               iyy="0.00384" iyz="0" izz="0.014136"/>
-    </inertial>
-    <collision>
-      <geometry>
-        <box size="0.02 0.13 0.02"/>
-      </geometry>
-    </collision>
-    <visual>
-      <geometry>
-        <mesh filename="package://omniveyor_common/meshes/realsense_r200.dae"/>
-      </geometry>
-    </visual>
-  </xacro:if>
-  </link>
-
-  <joint name="front_t265_joint" type="fixed">
-  <!--front tracking camera connector from bottom (on-ground) center of omniveyor-->
-    <parent link="base_link" />
-    <child link="cam_t1_pose_frame" />
-    <origin xyz="0.285 -0.08 0.37" rpy="0 0 0" />
-  </joint>
-  
-  <joint name="front_rs_joint" type="fixed">
-  <!--front depth camera connector from bottom (on-ground) center of omniveyor-->
-    <parent link="base_link" />
-    <child link="cam_d1_link" />
-    <origin xyz="0.285 0.08 0.37" rpy="0 0.04 0" />
-  </joint>
-
-  <joint name="rear_rs_joint" type="fixed">
-  <!--rear depth camera connector from bottom (on-ground) center of omniveyor-->
-    <parent link="base_link" />
-    <child link="cam_d2_link" />
-    <origin xyz="-0.285 -0.08 0.37" rpy="0 0.04 ${pi}" />
-  </joint>
-  </xacro:unless>
-  <xacro:if value="${accurateRealsense != '' and accurateRrealsensePlugin != '' and gazebo_property}">
+  <!--xacro:if value="${accurateRealsense != '' and accurateRrealsensePlugin != '' and gazebo_property}">
     <xacro:include filename="$(find omniveyor_gazebo_world)/launch/realsense_accurate_setup.gazebo.xacro"/>
-  </xacro:if>
+  </xacro:if-->
 </robot>
