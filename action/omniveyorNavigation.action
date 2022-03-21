@@ -1,0 +1,13 @@
+std_msgs/Header header
+actionlib_msgs/GoalID goal_id
+geometry_msgs/PoseWithCovariance target_pose
+std_msgs/Time timeout
+std_msgs/Int32 priority
+---
+std_msgs/Header header
+actionlib_msgs/GoalStatus status
+geometry_msgs/PoseWithCovariance final_pose
+---
+std_msgs/Header header
+actionlib_msgs/GoalStatus status
+geometry_msgs/PoseWithCovariance feedback_pose
