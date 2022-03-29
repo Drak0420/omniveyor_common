@@ -1,0 +1,12 @@
+std_msgs/Header header
+geometry_msgs/TwistWithCovariance target_twist
+std_msgs/Time expiration
+std_msgs/Int32 priority
+---
+std_msgs/Header header
+actionlib_msgs/GoalStatus status
+geometry_msgs/TwistWithCovariance final_twist
+---
+std_msgs/Header header
+actionlib_msgs/GoalStatus status
+geometry_msgs/TwistWithCovariance feedback_twist
