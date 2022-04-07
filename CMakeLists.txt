@@ -51,6 +51,8 @@ add_message_files(
     electricalStatus.msg
     payloadStatus.msg
     moduleEvaluate.msg
+    ReFrESHtelemetry.msg
+    ReFrESHrequest.msg
 )
 
 ## Generate services in the 'srv' folder
