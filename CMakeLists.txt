@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.6)
 project(omniveyor_common)
 
+set(CMAKE_CXX_STANDARD 17)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -12,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   roscpp
   tf
+  tf2_ros
   urdf
   xacro
 )
@@ -117,6 +120,22 @@ catkin_package(
   roscpp
   nav_msgs
   std_msgs
+  tf
+  tf2_ros
+)
+
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${PROJECT_SOURCE_DIR}/include
+)
+
+add_executable(TFfromOdom_node 
+  src/tf_from_odom.cpp
+)
+
+target_link_libraries(TFfromOdom_node
+  ${catkin_LIBRARIES}
 )
 
 #############

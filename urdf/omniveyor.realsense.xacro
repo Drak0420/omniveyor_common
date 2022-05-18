@@ -98,32 +98,36 @@
         <xacro:unless value="${useFullModel and isGazebo}">
             <!--Use the simple definition-->
             <xacro:unless value="${useFullModel}">
-            <link name="cam_d1_optical_frame"/>
-            <link name="cam_d2_optical_frame"/>
-            <joint name="cam_d1_depth_conversion" type="fixed">
-                <parent link="cam_d1_link" />
-                <child link="cam_d1_optical_frame" />
-                <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
-            </joint>
-            <joint name="cam_d2_depth_conversion" type="fixed">
-                <parent link="cam_d2_link" />
-                <child link="cam_d2_optical_frame" />
-                <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
-            </joint>
+                <xacro:if value="${hasFrontD435i}">
+                    <link name="cam_d1_optical_frame"/>
+                    <joint name="cam_d1_depth_conversion" type="fixed">
+                        <parent link="cam_d1_link" />
+                        <child link="cam_d1_optical_frame" />
+                        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
+                    </joint>
+                </xacro:if>
+                <xacro:if value="${hasRearD435i}">
+                    <link name="cam_d2_optical_frame"/>
+                    <joint name="cam_d2_depth_conversion" type="fixed">
+                        <parent link="cam_d2_link" />
+                        <child link="cam_d2_optical_frame" />
+                        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
+                    </joint>
+                </xacro:if>
             </xacro:unless>
             
             <!--front depth camera-->
             <link name="cam_d1_link">
-            <xacro:if value="${isGazebo}">
-                <xacro:insert_block name="cam_link_params"/>
-            </xacro:if>
+                <xacro:if value="${isGazebo and hasFrontD435i}">
+                    <xacro:insert_block name="cam_link_params"/>
+                </xacro:if>
             </link>
             
             <!--rear depth camera-->
             <link name="cam_d2_link">
-            <xacro:if value="${isGazebo}">
-                <xacro:insert_block name="cam_link_params"/>
-            </xacro:if>
+                <xacro:if value="${isGazebo and hasRearD435i}">
+                    <xacro:insert_block name="cam_link_params"/>
+                </xacro:if>
             </link>
 
             <xacro:if value="${isGazebo}">
@@ -144,16 +148,15 @@
         </xacro:unless>
 
         <xacro:if value="${hasT265 and isGazebo}">
-        <xacro:realsense_T265 sensor_name="cam_t1" parent_link="cam_t1_pose_frame" imu_rate="50.0" odom_rate="50.0" image_rate="0.1">
-            <origin xyz="0 0 0" rpy="0 0 0" />
-            <xyzOffset>0.285 -0.08 0.37</xyzOffset>
-            <rpyOffset>0 0 0</rpyOffset>
-        </xacro:realsense_T265>
+            <xacro:realsense_T265 sensor_name="cam_t1" parent_link="cam_t1_pose_frame" imu_rate="50.0" odom_rate="50.0" image_rate="0.1">
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <xyzOffset>0.285 -0.08 0.37</xyzOffset>
+                <rpyOffset>0 0 0</rpyOffset>
+            </xacro:realsense_T265>
         </xacro:if>
         <xacro:unless value="${hasT265 and isGazebo}">
-        <link name="cam_t1_pose_frame"/>
+            <link name="cam_t1_pose_frame"/>
         </xacro:unless>
-
 
         <joint name="front_t265_joint" type="fixed">
         <!--front tracking camera connector from bottom (on-ground) center of omniveyor-->
