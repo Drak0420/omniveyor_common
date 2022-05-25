@@ -1,4 +1,6 @@
 
 ---
-float32  performanceScore
-float32  resourceScore
+moduleEvaluate estimate
+
+#float32  performanceScore
+#float32  resourceScore

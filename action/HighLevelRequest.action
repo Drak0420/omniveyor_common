@@ -1,0 +1,7 @@
+std_msgs/String action_request
+std_msgs/String arguments
+---
+std_msgs/String explanation
+---
+std_msgs/Float32 percent_complete
+std_msgs/String explanation
