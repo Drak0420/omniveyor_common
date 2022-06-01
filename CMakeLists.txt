@@ -71,7 +71,6 @@ add_action_files(
   LowLevelPose.action
   LowLevelTwist.action
   LowLevelWrench.action
-  HighLevelTask.action
 )
 
 ## Generate added messages and services with any dependencies listed here

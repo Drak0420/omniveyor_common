@@ -1,12 +1,20 @@
 <?xml version="1.0" ?>
 <robot name="omniveyor" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Is the xacro interpreted to be used in a Gazebo simulation? -->
   <xacro:arg name="gazebo" default="false"/>
-  <!--The following arguments only takes effect in simulation.-->
-  <xacro:arg name="gpu_ray_tracing" default="true"/>
+  <!-- The following arguments only takes effect in simulation. -->
+  <!-- If the simulation computer has NVIDIA GTX 10xx or above graphics card,
+    setting this option to true will accelerate the LiDAR sensor,
+    hence significantly speed up the simulation. -->
+  <xacro:arg name="gpu_ray_tracing" default="false"/>
+  <!-- Sensor configuration. -->
   <xacro:arg name="has_lidar" default="true"/>
   <xacro:arg name="has_front_d435i" default="true"/>
   <xacro:arg name="has_rear_d435i" default="true"/>
   <xacro:arg name="has_t265" default="true"/>
+  <!-- RealSense D435i has a full sensor model and a simplified one available.
+    Frames, cameras amd geometry modeling are simplified in the simplified model.
+    Select which one to use. -->
   <xacro:arg name="simulate_full_sensor_model" default="false"/>
 
   <xacro:property name="gazebo_property" value="$(arg gazebo)"/>
