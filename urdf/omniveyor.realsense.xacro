@@ -1,182 +1,169 @@
-<?xml version="1.0" ?>
+<?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:property name="cam_link_params">
-        <inertial>
-            <mass value="0.072" />
-            <inertia ixx="0.003881243" ixy="0.0" ixz="0.0" iyy="0.000498940" iyz="0.0" izz="0.003879257" />
-        </inertial>
-        <collision>
-            <origin xyz="0 -0.0175 0" />
-            <geometry>
-                <box size="0.02 0.13 0.02"/>
-            </geometry>
-        </collision>
-        <visual>
-            <origin xyz="0 -0.0175 0" />
-            <geometry>
-                <mesh filename="package://omniveyor_common/meshes/realsense_r200.dae"/>
-            </geometry>
-        </visual>
-    </xacro:property>
-
-    <xacro:macro name="simple_imu_sensor" params="name">
-        <sensor name="imu_sensor" type="imu">
-            <gravity>true</gravity>
-            <always_on>true</always_on>
-            <update_rate>100</update_rate>
-            <visualize>true</visualize>
-            <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
-                <topicName>${name}/imu</topicName>
-                <bodyName>${name}_link</bodyName>
-                <updateRateHZ>0.0</updateRateHZ>
-                <gaussianNoise>0.002</gaussianNoise>
-                <xyzOffset>0 0 0</xyzOffset>
-                <rpyOffset>0 0 0</rpyOffset>
-                <frameName>${name}_link</frameName>
-                <initialOrientationAsReference>true</initialOrientationAsReference>
-            </plugin>
-            <pose>0 0 0 0 0 0</pose>
-        </sensor>
-    </xacro:macro>
-
-    <xacro:macro name="simple_rgbd_camera" params="name">
-        <sensor name="camera" type="depth">
-            <!--pose>0.001 -0.045 0.003 0 0 0</pose-->
-            <pose> 0 0 0 0 0 0 </pose>
-            <visualize>true</visualize>
-            <update_rate>15</update_rate>
-            <camera>
-                <horizontal_fov>1.204</horizontal_fov>
-                <image>
-                    <width>848</width>
-                    <height>480</height>
-                    <format>R8G8B8</format>
-                </image>
-                <noise>
-                    <type>gaussian</type>
-                    <mean>0.0</mean>
-                    <stddev>0.007</stddev>
-                </noise>
-            </camera>
-            <plugin name="camera_plugin" filename="libgazebo_ros_openni_kinect.so">
-                <baseline>0.2</baseline>
-                <alwaysOn>true</alwaysOn>
-                <!-- Keep this zero, update_rate in the parent <sensor> tag
+  <xacro:property name="cam_link_params">
+    <inertial>
+      <mass value="0.072"/>
+      <inertia ixx="0.003881243" ixy="0.0" ixz="0.0" iyy="0.000498940" iyz="0.0" izz="0.003879257"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 -0.0175 0"/>
+      <geometry>
+        <box size="0.02 0.13 0.02"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 -0.0175 0"/>
+      <geometry>
+        <mesh filename="package://omniveyor_common/meshes/realsense_r200.dae"/>
+      </geometry>
+    </visual>
+  </xacro:property>
+  <xacro:macro name="simple_imu_sensor" params="name">
+    <sensor name="imu_sensor" type="imu">
+      <gravity>true</gravity>
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <visualize>true</visualize>
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <topicName>${name}/imu</topicName>
+        <bodyName>${name}_link</bodyName>
+        <updateRateHZ>0.0</updateRateHZ>
+        <gaussianNoise>0.002</gaussianNoise>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 0 0</rpyOffset>
+        <frameName>${name}_link</frameName>
+        <initialOrientationAsReference>true</initialOrientationAsReference>
+      </plugin>
+      <pose>0 0 0 0 0 0</pose>
+    </sensor>
+  </xacro:macro>
+  <xacro:macro name="simple_rgbd_camera" params="name">
+    <sensor name="camera" type="depth">
+      <!--pose>0.001 -0.045 0.003 0 0 0</pose-->
+      <pose> 0 0 0 0 0 0 </pose>
+      <visualize>true</visualize>
+      <update_rate>15</update_rate>
+      <camera>
+        <horizontal_fov>1.204</horizontal_fov>
+        <image>
+          <width>848</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_plugin" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <!-- Keep this zero, update_rate in the parent <sensor> tag
                     will control the frame rate. -->
-                <updateRate>0.0</updateRate>
-                <cameraName>${name}</cameraName>
-                <imageTopicName>color/image_raw</imageTopicName>
-                <cameraInfoTopicName>color/camera_info</cameraInfoTopicName>
-                <depthImageTopicName>depth/image_rect_raw</depthImageTopicName>
-                <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
-                <pointCloudTopicName>depth/points</pointCloudTopicName>
-                <frameName>${name}_optical_frame</frameName>
-                <pointCloudCutoff>0.3</pointCloudCutoff>
-                <pointCloudCutoffMax>8.0</pointCloudCutoffMax>
-            </plugin>
-        </sensor>
-    </xacro:macro>
-
-    <xacro:macro name="add_realsense_cameras" params="isGazebo hasFrontD435i hasRearD435i hasT265 useFullModel:=False">
-        <xacro:include filename="trackerT265.xacro"/>
-        <xacro:if value="${useFullModel and isGazebo}">
-            <!--Use the official definition-->
-            <xacro:include filename="depthcamD435i.xacro"/>
-
-            <xacro:if value="${hasFrontD435i}">
-            <xacro:sensor_d435i name="cam_d1" parent="cam_d1_link" rgb_rate="15" depth_rate="15" ir_rate="0.1" imu_rate="50.0">
-                <origin xyz="0 0 0" rpy="0 0 0" />
-            </xacro:sensor_d435i>
-            </xacro:if>
-
-            <xacro:if value="${hasRearD435i}">
-            <xacro:sensor_d435i name="cam_d2" parent="cam_d2_link" rgb_rate="15" depth_rate="15" ir_rate="0.1" imu_rate="50.0">
-                <origin xyz="0 0 0" rpy="0 0 0" />
-            </xacro:sensor_d435i>
-            </xacro:if>
+        <updateRate>0.0</updateRate>
+        <cameraName>${name}</cameraName>
+        <imageTopicName>color/image_raw</imageTopicName>
+        <cameraInfoTopicName>color/camera_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/image_rect_raw</depthImageTopicName>
+        <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
+        <pointCloudTopicName>depth/points</pointCloudTopicName>
+        <frameName>${name}_optical_frame</frameName>
+        <pointCloudCutoff>0.3</pointCloudCutoff>
+        <pointCloudCutoffMax>8.0</pointCloudCutoffMax>
+      </plugin>
+    </sensor>
+  </xacro:macro>
+  <xacro:macro name="add_realsense_cameras" params="isGazebo hasFrontD435i hasRearD435i hasT265 useFullModel:=False">
+    <xacro:include filename="trackerT265.xacro"/>
+    <xacro:if value="${useFullModel and isGazebo}">
+      <!--Use the official definition-->
+      <xacro:include filename="depthcamD435i.xacro"/>
+      <xacro:if value="${hasFrontD435i}">
+        <xacro:sensor_d435i name="cam_d1" parent="cam_d1_link" rgb_rate="15" depth_rate="15" ir_rate="0.1" imu_rate="50.0">
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:sensor_d435i>
+      </xacro:if>
+      <xacro:if value="${hasRearD435i}">
+        <xacro:sensor_d435i name="cam_d2" parent="cam_d2_link" rgb_rate="15" depth_rate="15" ir_rate="0.1" imu_rate="50.0">
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:sensor_d435i>
+      </xacro:if>
+    </xacro:if>
+    <xacro:unless value="${useFullModel and isGazebo}">
+      <!--Use the simple definition-->
+      <xacro:unless value="${useFullModel}">
+        <xacro:if value="${hasFrontD435i}">
+          <link name="cam_d1_optical_frame"/>
+          <joint name="cam_d1_depth_conversion" type="fixed">
+            <parent link="cam_d1_link"/>
+            <child link="cam_d1_optical_frame"/>
+            <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+          </joint>
         </xacro:if>
-        <xacro:unless value="${useFullModel and isGazebo}">
-            <!--Use the simple definition-->
-            <xacro:unless value="${useFullModel}">
-                <xacro:if value="${hasFrontD435i}">
-                    <link name="cam_d1_optical_frame"/>
-                    <joint name="cam_d1_depth_conversion" type="fixed">
-                        <parent link="cam_d1_link" />
-                        <child link="cam_d1_optical_frame" />
-                        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
-                    </joint>
-                </xacro:if>
-                <xacro:if value="${hasRearD435i}">
-                    <link name="cam_d2_optical_frame"/>
-                    <joint name="cam_d2_depth_conversion" type="fixed">
-                        <parent link="cam_d2_link" />
-                        <child link="cam_d2_optical_frame" />
-                        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
-                    </joint>
-                </xacro:if>
-            </xacro:unless>
-            
-            <!--front depth camera-->
-            <link name="cam_d1_link">
-                <xacro:if value="${isGazebo and hasFrontD435i}">
-                    <xacro:insert_block name="cam_link_params"/>
-                </xacro:if>
-            </link>
-            
-            <!--rear depth camera-->
-            <link name="cam_d2_link">
-                <xacro:if value="${isGazebo and hasRearD435i}">
-                    <xacro:insert_block name="cam_link_params"/>
-                </xacro:if>
-            </link>
-
-            <xacro:if value="${isGazebo}">
-                <xacro:if value="${hasFrontD435i}">
-                    <gazebo reference="cam_d1_link">
-                        <xacro:simple_imu_sensor name="cam_d1"/>
-                        <xacro:simple_rgbd_camera name="cam_d1"/>
-                    </gazebo>
-                </xacro:if>
-
-                <xacro:if value="${hasRearD435i}">
-                    <gazebo reference="cam_d2_link">
-                        <xacro:simple_imu_sensor name="cam_d2"/>
-                        <xacro:simple_rgbd_camera name="cam_d2"/>
-                    </gazebo>
-                </xacro:if>
-            </xacro:if>
-        </xacro:unless>
-
-        <xacro:if value="${hasT265 and isGazebo}">
-            <xacro:realsense_T265 sensor_name="cam_t1" parent_link="cam_t1_pose_frame" imu_rate="50.0" odom_rate="50.0" image_rate="0.1">
-                <origin xyz="0 0 0" rpy="0 0 0" />
-                <xyzOffset>0.285 -0.08 0.37</xyzOffset>
-                <rpyOffset>0 0 0</rpyOffset>
-            </xacro:realsense_T265>
+        <xacro:if value="${hasRearD435i}">
+          <link name="cam_d2_optical_frame"/>
+          <joint name="cam_d2_depth_conversion" type="fixed">
+            <parent link="cam_d2_link"/>
+            <child link="cam_d2_optical_frame"/>
+            <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+          </joint>
         </xacro:if>
-        <xacro:unless value="${hasT265 and isGazebo}">
-            <link name="cam_t1_pose_frame"/>
-        </xacro:unless>
-
-        <joint name="front_t265_joint" type="fixed">
-        <!--front tracking camera connector from bottom (on-ground) center of omniveyor-->
-            <parent link="base_link" />
-            <child link="cam_t1_pose_frame" />
-            <origin xyz="0.285 -0.08 0.37" rpy="0 0 0" />
-        </joint>
-        
-        <joint name="front_rs_joint" type="fixed">
-        <!--front depth camera connector from bottom (on-ground) center of omniveyor-->
-            <parent link="base_link" />
-            <child link="cam_d1_link" />
-            <origin xyz="0.285 0.0975 0.37" rpy="0 0.04 0" />
-        </joint>
-
-        <joint name="rear_rs_joint" type="fixed">
-        <!--rear depth camera connector from bottom (on-ground) center of omniveyor-->
-            <parent link="base_link" />
-            <child link="cam_d2_link" />
-            <origin xyz="-0.285 -0.0975 0.37" rpy="0 0.04 ${pi}" />
-        </joint>
-    </xacro:macro>
-</robot> 
+      </xacro:unless>
+      <!--front depth camera-->
+      <link name="cam_d1_link">
+        <xacro:if value="${isGazebo and hasFrontD435i}">
+          <xacro:insert_block name="cam_link_params"/>
+        </xacro:if>
+      </link>
+      <!--rear depth camera-->
+      <link name="cam_d2_link">
+        <xacro:if value="${isGazebo and hasRearD435i}">
+          <xacro:insert_block name="cam_link_params"/>
+        </xacro:if>
+      </link>
+      <xacro:if value="${isGazebo}">
+        <xacro:if value="${hasFrontD435i}">
+          <gazebo reference="cam_d1_link">
+            <xacro:simple_imu_sensor name="cam_d1"/>
+            <xacro:simple_rgbd_camera name="cam_d1"/>
+          </gazebo>
+        </xacro:if>
+        <xacro:if value="${hasRearD435i}">
+          <gazebo reference="cam_d2_link">
+            <xacro:simple_imu_sensor name="cam_d2"/>
+            <xacro:simple_rgbd_camera name="cam_d2"/>
+          </gazebo>
+        </xacro:if>
+      </xacro:if>
+    </xacro:unless>
+    <xacro:if value="${hasT265 and isGazebo}">
+      <xacro:realsense_T265 sensor_name="cam_t1" parent_link="cam_t1_pose_frame" imu_rate="50.0" odom_rate="50.0" image_rate="0.1">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xyzOffset>0.285 -0.08 0.37</xyzOffset>
+        <rpyOffset>0 0 0</rpyOffset>
+      </xacro:realsense_T265>
+    </xacro:if>
+    <xacro:unless value="${hasT265 and isGazebo}">
+      <link name="cam_t1_pose_frame"/>
+    </xacro:unless>
+    <joint name="front_t265_joint" type="fixed">
+      <!--front tracking camera connector from bottom (on-ground) center of omniveyor-->
+      <parent link="base_link"/>
+      <child link="cam_t1_pose_frame"/>
+      <origin xyz="0.285 -0.08 0.37" rpy="0 0 0"/>
+    </joint>
+    <joint name="front_rs_joint" type="fixed">
+      <!--front depth camera connector from bottom (on-ground) center of omniveyor-->
+      <parent link="base_link"/>
+      <child link="cam_d1_link"/>
+      <origin xyz="0.285 0.0975 0.37" rpy="0 0.04 0"/>
+    </joint>
+    <joint name="rear_rs_joint" type="fixed">
+      <!--rear depth camera connector from bottom (on-ground) center of omniveyor-->
+      <parent link="base_link"/>
+      <child link="cam_d2_link"/>
+      <origin xyz="-0.285 -0.0181 0.37" rpy="0 0.04 ${pi}"/>
+    </joint>
+  </xacro:macro>
+</robot>
